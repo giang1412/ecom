@@ -1,18 +1,22 @@
 import { ConflictException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
-import { RegisterBodyType } from 'src/routes/auth/auth.model'
+import { addMilliseconds } from 'date-fns'
+import { RegisterBodyType, SendOTPBodyType } from 'src/routes/auth/auth.model'
 import { AuthRepository } from 'src/routes/auth/auth.repo'
 import { RolesService } from 'src/routes/auth/roles.service'
-import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
+import envConfig from 'src/shared/config'
+import { generateOTP, isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
+import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { TokenService } from 'src/shared/services/token.service'
+import ms from 'ms'
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly hashingService: HashingService,
-    private readonly tokenService: TokenService,
     private readonly rolesService: RolesService,
     private readonly authRepository: AuthRepository,
+    private readonly sharedUserRepository: SharedUserRepository,
   ) {}
   async register(body: RegisterBodyType) {
     try {
@@ -32,6 +36,30 @@ export class AuthService {
       }
       throw error
     }
+  }
+  async sendOTP(body: SendOTPBodyType) {
+    // 1. Kiểm tra email đã tồn tại trong db chưa
+    const user = await this.sharedUserRepository.findUnique({
+      email: body.email,
+    })
+    if (user) {
+      throw new UnprocessableEntityException([
+        {
+          message: 'Email đã tồn tại',
+          path: 'email',
+        },
+      ])
+    }
+
+    // 2. Tạo mã OTP
+    const code = generateOTP()
+    const verificationCode = this.authRepository.createVerificationCode({
+      email: body.email,
+      code,
+      type: body.type,
+      expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN)),
+    })
+    return verificationCode
   }
 
   // async login(body: any) {
