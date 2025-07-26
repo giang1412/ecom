@@ -11,5 +11,5 @@ export function isNotFoundPrismaError(error: any): error is PrismaClientKnownReq
 }
 
 export const generateOTP = () => {
-  return String(randomInt(100000, 10000000))
+  return String(randomInt(100000, 1000000))
 }
