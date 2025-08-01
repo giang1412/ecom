@@ -38,6 +38,7 @@ export class AuthRepository {
       update: {
         code: payload.code,
         expiresAt: payload.expiresAt,
+        type: payload.type,
       },
     })
   }
@@ -102,6 +103,28 @@ export class AuthRepository {
   deleteRefreshToken(uniqueObject: { token: string }): Promise<RefreshTokenType> {
     return this.prismaService.refreshToken.delete({
       where: uniqueObject,
+    })
+  }
+
+  updateUser(uniqueObject: { id: number } | { email: string }, data: Partial<Omit<UserType, 'id'>>): Promise<UserType> {
+    return this.prismaService.user.update({
+      where: uniqueObject,
+      data,
+    })
+  }
+
+  deleteVerificationCode(
+    uniqueValue:
+      | { email: string }
+      | { id: number }
+      | {
+          email: string
+          code: string
+          type: TypeOfVerificationCodeType
+        },
+  ): Promise<VerificationCodeType> {
+    return this.prismaService.verificationCode.delete({
+      where: uniqueValue,
     })
   }
 }
