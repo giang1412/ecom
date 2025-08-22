@@ -57,6 +57,22 @@ export const LoginBodySchema = z
     code: z.string().length(6).optional(), // Email OTP code
   })
   .strict()
+  .superRefine(({ totpCode, code }, ctx) => {
+    const message = 'Bạn phải cung cấp mã xác thực 2FA hoặc mã OTP. Không được cung cấp cả 2'
+    // Nếu cả 2 đều có hoặc không có thì sẽ nhảy vào if
+    if ((totpCode !== undefined) === (code !== undefined)) {
+      ctx.addIssue({
+        path: ['totpCode'],
+        message,
+        code: 'custom',
+      })
+      ctx.addIssue({
+        path: ['code'],
+        message,
+        code: 'custom',
+      })
+    }
+  })
 
 export const LoginResSchema = z.object({
   accessToken: z.string(),

@@ -8,6 +8,7 @@ import {
 import { addMilliseconds } from 'date-fns'
 import {
   ForgotPasswordBodyType,
+  LoginBodyType,
   RefreshTokenBodyType,
   RegisterBodyType,
   SendOTPBodyType,
@@ -27,6 +28,8 @@ import {
   EmailNotFoundException,
   InvalidOTPException,
   InvalidPasswordException,
+  InvalidTOTPAndCodeException,
+  InvalidTOTPException,
   OTPExpiredException,
   RefreshTokenAlreadyUsedException,
   TOTPAlreadyEnabledException,
@@ -123,7 +126,8 @@ export class AuthService {
     return verificationCode
   }
 
-  async login(body: any) {
+  async login(body: LoginBodyType & { userAgent: string; ip: string }) {
+    // 1. Kiểm tra user có tồn tại không
     const user = await this.authRepository.findUniqueUserIncludeRole({
       email: body.email,
     })
@@ -136,11 +140,38 @@ export class AuthService {
     if (!isPasswordMatch) {
       throw InvalidPasswordException
     }
+    // 2. Kiểm tra otp và totp
+    // Nếu user đã bật 2FA thì kiểm tra 2FA
+    if (user.totpSecret) {
+      if (!body.totpCode && !body.code) {
+        throw InvalidTOTPAndCodeException
+      }
+      if (body.totpCode) {
+        const isValid = this.twoFactorService.verifyTOTP({
+          email: user.email,
+          secret: user.totpSecret,
+          token: body.totpCode,
+        })
+        if (!isValid) {
+          throw InvalidTOTPException
+        }
+      } else if (body.code) {
+        await this.validateVerificationCode({
+          email: user.email,
+          code: body.code,
+          type: TypeOfVerificationCode.LOGIN,
+        })
+      }
+    }
+
+    // 3. Tạo mới device
     const device = await this.authRepository.createDevice({
       userId: user.id,
       userAgent: body.userAgent,
       ip: body.ip,
     })
+
+    // 4. Tạo mới accessToken và refreshToken
     const tokens = await this.generateTokens({
       userId: user.id,
       deviceId: device.id,
