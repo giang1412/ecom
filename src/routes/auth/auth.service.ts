@@ -29,7 +29,9 @@ import {
   InvalidPasswordException,
   OTPExpiredException,
   RefreshTokenAlreadyUsedException,
+  TOTPAlreadyEnabledException,
 } from 'src/routes/auth/error.model'
+import { TwoFactorService } from 'src/shared/services/2fa.service'
 
 @Injectable()
 export class AuthService {
@@ -39,6 +41,7 @@ export class AuthService {
     private readonly authRepository: AuthRepository,
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly tokenService: TokenService,
+    private readonly twoFactorService: TwoFactorService,
   ) {}
   async validateVerificationCode({
     email,
@@ -280,5 +283,35 @@ export class AuthService {
       }),
     ])
     return { message: 'Đổi mật khẩu thành công' }
+  }
+
+  async setupTwoFactorAuth(userId: number) {
+    // 1. Kiểm tra user theo email
+    console.log('userId: ', userId)
+    const user = await this.sharedUserRepository.findUnique({
+      id: userId,
+    })
+
+    if (!user) {
+      throw EmailNotFoundException
+    }
+
+    if (user.totpSecret) {
+      throw TOTPAlreadyEnabledException
+    }
+    // 2. Tạo secret và uri cho 2FA
+    const { secret, uri } = this.twoFactorService.generateTOTP(user.email)
+    // 3. Lưu secret vào database
+    await this.authRepository.updateUser(
+      { id: user.id },
+      {
+        totpSecret: secret,
+      },
+    )
+    // 4. Trả về uri cho người dùng quét
+    return {
+      secret,
+      uri,
+    }
   }
 }
