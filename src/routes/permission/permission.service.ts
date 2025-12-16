@@ -19,11 +19,11 @@ export class PermissionService {
   }
 
   async findById(id: number) {
-    const Permission = await this.permissionRepo.findById(id)
-    if (!Permission) {
+    const permission = await this.permissionRepo.findById(id)
+    if (!permission) {
       throw NotFoundRecordException
     }
-    return Permission
+    return permission
   }
 
   async create({ data, createdById }: { data: CreatePermissionBodyType; createdById: number }) {
