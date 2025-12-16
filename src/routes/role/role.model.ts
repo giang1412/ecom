@@ -1,5 +1,5 @@
-import { RoleSchema } from 'src/routes/auth/auth.model'
-import { PermissionSchema } from 'src/routes/permission/permission.model'
+import { PermissionSchema } from 'src/shared/models/shared-permission.model'
+import { RoleSchema } from 'src/shared/models/shared-role.model'
 import { z } from 'zod'
 
 export const RoleWithPermissionsSchema = RoleSchema.extend({
