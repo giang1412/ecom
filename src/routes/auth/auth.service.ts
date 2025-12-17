@@ -28,7 +28,6 @@ import {
   EmailAlreadyExistsException,
   EmailNotFoundException,
   InvalidOTPException,
-  InvalidPasswordException,
   InvalidTOTPAndCodeException,
   InvalidTOTPException,
   OTPExpiredException,
@@ -37,6 +36,7 @@ import {
   TOTPNotEnabledException,
 } from 'src/routes/auth/error.model'
 import { TwoFactorService } from 'src/shared/services/2fa.service'
+import { InvalidPasswordException } from 'src/shared/error'
 
 @Injectable()
 export class AuthService {
@@ -301,8 +301,8 @@ export class AuthService {
     // 3. Cập nhật lại password và xóa OTP
     const hashedPassword = await this.hashingService.hash(newPassword)
     await Promise.all([
-      this.authRepository.updateUser(
-        { id: user.id },
+      this.sharedUserRepository.update(
+        { id: user.id, deleteAt: null },
         {
           password: hashedPassword,
         },
@@ -320,7 +320,6 @@ export class AuthService {
 
   async setupTwoFactorAuth(userId: number) {
     // 1. Kiểm tra user theo email
-    console.log('userId: ', userId)
     const user = await this.sharedUserRepository.findUnique({
       id: userId,
     })
@@ -335,10 +334,11 @@ export class AuthService {
     // 2. Tạo secret và uri cho 2FA
     const { secret, uri } = this.twoFactorService.generateTOTP(user.email)
     // 3. Lưu secret vào database
-    await this.authRepository.updateUser(
-      { id: user.id },
+    await this.sharedUserRepository.update(
+      { id: user.id, deleteAt: null },
       {
         totpSecret: secret,
+        updatedById: userId,
       },
     )
     // 4. Trả về uri cho người dùng quét
@@ -382,7 +382,7 @@ export class AuthService {
     }
 
     // 4. Cập nhật secret thành null
-    await this.authRepository.updateUser({ id: userId }, { totpSecret: null })
+    await this.sharedUserRepository.update({ id: userId, deleteAt: null }, { totpSecret: null, updatedById: userId })
 
     // 5. Trả về thông báo
     return {
