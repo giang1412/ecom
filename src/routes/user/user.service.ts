@@ -101,7 +101,7 @@ export class UserService {
       })
 
       const updateUser = await this.sharedUserRepository.update(
-        { id, deletedAt: null },
+        { id },
         {
           ...data,
           updatedById,

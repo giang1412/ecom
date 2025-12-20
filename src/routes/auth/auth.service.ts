@@ -302,7 +302,7 @@ export class AuthService {
     const hashedPassword = await this.hashingService.hash(newPassword)
     await Promise.all([
       this.sharedUserRepository.update(
-        { id: user.id, deleteAt: null },
+        { id: user.id },
         {
           password: hashedPassword,
         },
@@ -335,7 +335,7 @@ export class AuthService {
     const { secret, uri } = this.twoFactorService.generateTOTP(user.email)
     // 3. Lưu secret vào database
     await this.sharedUserRepository.update(
-      { id: user.id, deleteAt: null },
+      { id: user.id },
       {
         totpSecret: secret,
         updatedById: userId,
@@ -382,7 +382,7 @@ export class AuthService {
     }
 
     // 4. Cập nhật secret thành null
-    await this.sharedUserRepository.update({ id: userId, deleteAt: null }, { totpSecret: null, updatedById: userId })
+    await this.sharedUserRepository.update({ id: userId }, { totpSecret: null, updatedById: userId })
 
     // 5. Trả về thông báo
     return {

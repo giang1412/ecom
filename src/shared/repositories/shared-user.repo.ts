@@ -13,13 +13,13 @@ export class SharedUserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findUnique(where: WhereUniqueUserType): Promise<UserType | null> {
-    return this.prismaService.user.findUnique({
+    return this.prismaService.user.findFirst({
       where,
     })
   }
 
   findUniqueIncludeRolePermissions(where: WhereUniqueUserType): Promise<UserIncludeRolePermissionsType | null> {
-    return this.prismaService.user.findUnique({
+    return this.prismaService.user.findFirst({
       where,
       include: {
         role: {
@@ -35,9 +35,12 @@ export class SharedUserRepository {
     })
   }
 
-  update(where: WhereUniqueUserType, data: Partial<UserType>): Promise<UserType | null> {
+  update(where: { id: number }, data: Partial<UserType>): Promise<UserType | null> {
     return this.prismaService.user.update({
-      where,
+      where: {
+        ...where,
+        deletedAt: null,
+      },
       data,
     })
   }

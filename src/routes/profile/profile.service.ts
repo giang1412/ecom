@@ -29,7 +29,7 @@ export class ProfileService {
   async updateProfile({ userId, body }: { userId: number; body: UpdateMeBodyType }) {
     try {
       return await this.sharedUserRepository.update(
-        { id: userId, deletedAt: null },
+        { id: userId },
         {
           ...body,
           updatedById: userId,
@@ -59,7 +59,7 @@ export class ProfileService {
       const hashedPassword = await this.hashingService.hash(newPassword)
 
       await this.sharedUserRepository.update(
-        { id: userId, deletedAt: null },
+        { id: userId },
         {
           password: hashedPassword,
           updatedById: userId,
