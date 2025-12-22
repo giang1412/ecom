@@ -25,6 +25,7 @@ const configSchema = z.object({
   ADMIN_PHONE_NUMBER: z.string(),
   OTP_EXPIRES_IN: z.string(),
   APP_NAME: z.string(),
+  PREFIX_STATIC_ENDPOINT: z.string(),
 })
 
 const configServer = configSchema.safeParse(process.env)
