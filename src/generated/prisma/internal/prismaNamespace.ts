@@ -2214,7 +2214,7 @@ export const SKUScalarFieldEnum = {
   value: 'value',
   price: 'price',
   stock: 'stock',
-  images: 'images',
+  image: 'image',
   productId: 'productId',
   createdById: 'createdById',
   updatedById: 'updatedById',
