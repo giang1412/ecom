@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
+import { JwtService, JwtSignOptions } from '@nestjs/jwt'
 import envConfig from 'src/shared/config'
 import {
   AccessTokenPayload,
@@ -8,6 +8,7 @@ import {
   RefreshTokenPayloadCreate,
 } from 'src/shared/types/jwt.type'
 import { v4 as uuidv4 } from 'uuid'
+
 @Injectable()
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
@@ -17,7 +18,7 @@ export class TokenService {
       { ...payload, uuid: uuidv4() },
       {
         secret: envConfig.ACCESS_TOKEN_SECRET,
-        expiresIn: envConfig.ACCESS_TOKEN_EXPIRES_IN,
+        expiresIn: envConfig.ACCESS_TOKEN_EXPIRES_IN as JwtSignOptions['expiresIn'],
         algorithm: 'HS256',
       },
     )
@@ -28,7 +29,7 @@ export class TokenService {
       { ...payload, uuid: uuidv4() },
       {
         secret: envConfig.REFRESH_TOKEN_SECRET,
-        expiresIn: envConfig.REFRESH_TOKEN_EXPIRES_IN,
+        expiresIn: envConfig.REFRESH_TOKEN_EXPIRES_IN as JwtSignOptions['expiresIn'],
         algorithm: 'HS256',
       },
     )

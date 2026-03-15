@@ -1,11 +1,19 @@
 generator client {
-  provider = "prisma-client-js"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
+
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
+
+
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 
 model Language {
   id                   String                   @id @db.VarChar(10)
@@ -223,7 +231,8 @@ model Product {
   brand               Brand                @relation(fields: [brandId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   images              String[]
   categories          Category[]
-  variants            Json[]
+  /// [Variants]
+  variants            Json             
   skus                SKU[]
   reviews             Review[]
   productTranslations ProductTranslation[]

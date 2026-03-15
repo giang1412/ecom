@@ -30,26 +30,25 @@ export const VariantSchema = z.object({
 })
 
 export const VariantsSchema = z.array(VariantSchema).superRefine((variants, ctx) => {
-  // Kiểm tra variants và variant option có bị trùng hay không
-  for (let i = 0; i < variants.length; i++) {
-    const variant = variants[i]
-    const isDifferent = variants.findIndex((v) => v.value === variant.value) !== i
-    if (!isDifferent) {
-      return ctx.addIssue({
-        code: 'custom',
-        message: `Giá trị ${variant.value} đã tồn tại trong danh sách variants. Vui lòng kiểm tra lại.`,
-        path: ['variants'],
-      })
-    }
-    const isDifferentOption = variant.options.findIndex((o) => variant.options.includes(o)) !== -1
-    if (isDifferentOption) {
-      return ctx.addIssue({
-        code: 'custom',
-        message: `Variant ${variant.value} chứa các option trùng tên với nhau. Vui lòng kiểm tra lại.`,
-        path: ['variants'],
-      })
-    }
+  const values = variants.map((v) => v.value)
+
+  if (new Set(values).size !== values.length) {
+    ctx.addIssue({
+      code: 'custom',
+      message: `Variants bị trùng value`,
+      path: ['variants'],
+    })
   }
+
+  variants.forEach((variant, index) => {
+    if (new Set(variant.options).size !== variant.options.length) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Variant ${variant.value} có option trùng`,
+        path: ['variants', index],
+      })
+    }
+  })
 })
 
 export const ProductSchema = z.object({

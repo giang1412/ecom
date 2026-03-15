@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomInt } from 'crypto'
 import path from 'path'
+import { PrismaClientKnownRequestError } from 'src/generated/prisma/internal/prismaNamespace'
 import { v4 as uuidv4 } from 'uuid'
 // Type Predicate
 export function isUniqueConstraintPrismaError(error: any): error is PrismaClientKnownRequestError {

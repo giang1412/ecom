@@ -20,7 +20,7 @@ import { generateOTP, isNotFoundPrismaError, isUniqueConstraintPrismaError } fro
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { TokenService } from 'src/shared/services/token.service'
-import ms from 'ms'
+import ms, { StringValue } from 'ms'
 import { TypeOfVerificationCode, TypeOfVerificationCodeType } from 'src/shared/constants/auth.constant'
 import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type'
 import {
@@ -123,7 +123,7 @@ export class AuthService {
       email: body.email,
       code,
       type: body.type,
-      expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN)),
+      expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN as StringValue)),
     })
     return verificationCode
   }
