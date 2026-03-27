@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import {
+  CreateProductBodyType,
   GetProductDetailResType,
   GetProductsQueryType,
   GetProductsResType,
@@ -11,6 +12,55 @@ import { PrismaService } from 'src/shared/services/prisma.service'
 @Injectable()
 export class ProductRepo {
   constructor(private readonly prismaService: PrismaService) {}
+
+  create({
+    createdById,
+    data,
+  }: {
+    createdById: number
+    data: CreateProductBodyType
+  }): Promise<GetProductDetailResType> {
+    const { skus, categories, ...productData } = data
+    return this.prismaService.product.create({
+      data: {
+        createdById,
+        ...productData,
+        categories: {
+          connect: categories.map((category) => ({ id: category })),
+        },
+        skus: {
+          createMany: {
+            data: skus,
+          },
+        },
+      },
+      include: {
+        productTranslations: {
+          where: { deletedAt: null },
+        },
+        skus: {
+          where: { deletedAt: null },
+        },
+        brand: {
+          include: {
+            brandTranslations: {
+              where: { deletedAt: null },
+            },
+          },
+        },
+        categories: {
+          where: {
+            deletedAt: null,
+          },
+          include: {
+            categoryTranslations: {
+              where: { deletedAt: null },
+            },
+          },
+        },
+      },
+    })
+  }
 
   async list(query: GetProductsQueryType, languageId: string): Promise<GetProductsResType> {
     const skip = (query.page - 1) * query.limit
