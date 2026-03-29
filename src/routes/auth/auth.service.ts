@@ -57,19 +57,19 @@ export class AuthService {
     code: string
     type: TypeOfVerificationCodeType
   }) {
-    const vevificationCode = await this.authRepository.findUniqueVerificationCode({
+    const verificationCode = await this.authRepository.findUniqueVerificationCode({
       email_type: {
         email,
         type,
       },
     })
-    if (!vevificationCode) {
+    if (!verificationCode) {
       throw InvalidOTPException
     }
-    if (vevificationCode.expiresAt < new Date()) {
+    if (verificationCode.expiresAt < new Date()) {
       throw OTPExpiredException
     }
-    return vevificationCode
+    return verificationCode
   }
   async register(body: RegisterBodyType) {
     try {
@@ -79,6 +79,7 @@ export class AuthService {
         type: TypeOfVerificationCode.REGISTER,
       })
       const clientRoleId = await this.sharedRoleRepository.getClientRoleId()
+      const sellerRoleId = await this.sharedRoleRepository.getSellerRoleId()
       const hashedPassword = await this.hashingService.hash(body.password)
 
       const [user] = await Promise.all([
@@ -87,12 +88,12 @@ export class AuthService {
           name: body.name,
           phoneNumber: body.phoneNumber,
           password: hashedPassword,
-          roleId: clientRoleId,
+          roleId: sellerRoleId,
         }),
         this.authRepository.deleteVerificationCode({
           email_type: {
             email: body.email,
-            code: body.code,
+            // code: body.code,
             type: TypeOfVerificationCode.REGISTER,
           },
         }),
@@ -310,7 +311,7 @@ export class AuthService {
       this.authRepository.deleteVerificationCode({
         email_type: {
           email: body.email,
-          code: body.code,
+          // code: body.code,
           type: TypeOfVerificationCode.FORGOT_PASSWORD,
         },
       }),

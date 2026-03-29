@@ -118,7 +118,7 @@ export class AuthRepository {
       | {
           email_type: {
             email: string
-            code: string
+            // code: string
             type: TypeOfVerificationCodeType
           }
         },
