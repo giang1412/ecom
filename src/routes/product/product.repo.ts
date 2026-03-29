@@ -22,6 +22,7 @@ export class ProductRepo {
     data: CreateProductBodyType
   }): Promise<GetProductDetailResType> {
     const { skus, categories, ...productData } = data
+
     return this.prismaService.product.create({
       data: {
         createdById,
