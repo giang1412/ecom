@@ -64,19 +64,42 @@ export class ProductRepo {
     })
   }
 
-  async list(query: GetProductsQueryType, languageId: string): Promise<GetProductsResType> {
-    const skip = (query.page - 1) * query.limit
-    const take = query.limit
+  async list({
+    limit,
+    page,
+    name,
+    brandIds,
+    categories,
+    minPrice,
+    maxPrice,
+    createdById,
+    isPublic,
+    languageId,
+  }: {
+    limit: number
+    page: number
+    name?: string
+    brandIds?: number[]
+    categories?: number[]
+    minPrice?: number
+    maxPrice?: number
+    createdById?: number
+    isPublic?: boolean
+    languageId: string
+  }): Promise<GetProductsResType> {
+    const skip = (page - 1) * limit
+    const take = limit
+    const where = {
+      deletedAt: null,
+      createdById: createdById ? createdById : undefined,
+      publishedAt: isPublic ? { lte: new Date(), not: null } : undefined,
+    }
     const [totalItems, data] = await Promise.all([
       this.prismaService.product.count({
-        where: {
-          deletedAt: null,
-        },
+        where,
       }),
       this.prismaService.product.findMany({
-        where: {
-          deletedAt: null,
-        },
+        where,
         include: {
           productTranslations: {
             where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
@@ -92,16 +115,32 @@ export class ProductRepo {
     return {
       data,
       totalItems,
-      page: query.page,
-      limit: query.limit,
-      totalPages: Math.ceil(totalItems / query.limit),
+      page: page,
+      limit: limit,
+      totalPages: Math.ceil(totalItems / limit),
     }
   }
 
-  findById(id: number, languageId: string): Promise<GetProductDetailResType | null> {
+  findById(productId: number): Promise<ProductType | null> {
     return this.prismaService.product.findUnique({
       where: {
-        id,
+        id: productId,
+        deletedAt: null,
+      },
+    })
+  }
+  getDetail({
+    productId,
+    languageId,
+    isPublic,
+  }: {
+    productId: number
+    languageId: string
+    isPublic?: boolean
+  }): Promise<GetProductDetailResType | null> {
+    return this.prismaService.product.findUnique({
+      where: {
+        id: productId,
         deletedAt: null,
       },
       include: {
@@ -133,7 +172,6 @@ export class ProductRepo {
       },
     })
   }
-
   async update({
     id,
     updatedById,
@@ -245,25 +283,27 @@ export class ProductRepo {
     isHard?: boolean,
   ): Promise<ProductType> {
     if (isHard) {
-      const [product] = await Promise.all([
-        this.prismaService.product.delete({
-          where: {
-            id,
-          },
-        }),
-        this.prismaService.sKU.deleteMany({
-          where: {
-            productId: id,
-          },
-        }),
-      ])
-      return product
+      return this.prismaService.product.delete({
+        where: {
+          id,
+        },
+      })
     }
     const now = new Date()
     const [product] = await Promise.all([
       this.prismaService.product.update({
         where: {
           id,
+          deletedAt: null,
+        },
+        data: {
+          deletedAt: now,
+          deletedById,
+        },
+      }),
+      this.prismaService.productTranslation.updateMany({
+        where: {
+          productId: id,
           deletedAt: null,
         },
         data: {
