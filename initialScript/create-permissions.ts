@@ -3,9 +3,9 @@ import { PrismaService } from 'src/shared/services/prisma.service'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from 'src/app.module'
 
-const SellerModule = ['AUTH', 'MEDIA', 'MANAGE-PRODUCT', 'PRODUCT-TRANSLATION', 'PROFILE', 'CART']
+const SellerModule = ['AUTH', 'MEDIA', 'MANAGE-PRODUCT', 'PRODUCT-TRANSLATION', 'PROFILE', 'CART', 'ORDERS']
 
-const ClientModule = ['AUTH', 'MEDIA', 'PROFILE', 'CART']
+const ClientModule = ['AUTH', 'MEDIA', 'PROFILE', 'CART', 'ORDERS']
 
 const prisma = new PrismaService()
 

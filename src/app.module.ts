@@ -22,6 +22,7 @@ import { CategoryTranslationModule } from 'src/routes/category/category-translat
 import { ProductTranslationModule } from 'src/routes/product/product-translation/product-translation.module'
 import { ProductModule } from 'src/routes/product/product.module'
 import { CartModule } from 'src/routes/cart/cart.module'
+import { OrderModule } from 'src/routes/order/order.module'
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { CartModule } from 'src/routes/cart/cart.module'
     ProductModule,
     ProductTranslationModule,
     CartModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [
