@@ -108,6 +108,11 @@ export type ProductSKUSnapshot = Prisma.ProductSKUSnapshotModel
  */
 export type Order = Prisma.OrderModel
 /**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
  * Model Review
  * 
  */

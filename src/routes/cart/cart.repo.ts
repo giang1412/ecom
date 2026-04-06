@@ -39,8 +39,8 @@ export class CartRepo {
       this.prismaService.cartItem.findUnique({
         where: {
           skuId_userId: {
-            userId,
             skuId,
+            userId,
           },
         },
       }),
@@ -51,21 +51,19 @@ export class CartRepo {
         },
       }),
     ])
-
     // Kiểm tra tồn tại của SKU
     if (!sku) {
       throw NotFoundSKUException
     }
-    if (!cartItem) {
-      throw NotFoundCartItemException
-    }
-    if (isCreate && quantity + cartItem.quantity > sku.stock) {
+
+    if (cartItem && isCreate && quantity + cartItem.quantity > sku.stock) {
       throw InvalidQuantityException
     }
     // Kiểm tra lượng hàng còn lại
     if (sku.stock < 1 || sku.stock < quantity) {
       throw OutOfStockSKUException
     }
+
     const { product } = sku
 
     // Kiểm tra sản phẩm đã bị xóa hoặc có công khai hay không
