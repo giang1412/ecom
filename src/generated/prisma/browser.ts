@@ -113,6 +113,11 @@ export type Order = Prisma.OrderModel
  */
 export type Payment = Prisma.PaymentModel
 /**
+ * Model Websocket
+ * 
+ */
+export type Websocket = Prisma.WebsocketModel
+/**
  * Model Review
  * 
  */
