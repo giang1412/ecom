@@ -36,6 +36,7 @@
     "@nestjs/websockets": "^11.1.18",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
+    "@socket.io/redis-adapter": "^8.3.0",
     "bcrypt": "^6.0.0",
     "bullmq": "^5.73.0",
     "date-fns": "^4.1.0",
@@ -45,8 +46,10 @@
     "nestjs-i18n": "^10.6.0",
     "nestjs-zod": "^4.3.1",
     "otpauth": "^9.4.1",
+    "redis": "^5.11.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "socket.io": "^4.8.3",
     "uuid": "^11.1.0",
     "zod": "^3.25.76"
   },
