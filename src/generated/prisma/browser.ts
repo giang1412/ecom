@@ -123,6 +123,11 @@ export type Websocket = Prisma.WebsocketModel
  */
 export type Review = Prisma.ReviewModel
 /**
+ * Model ReviewMedia
+ * 
+ */
+export type ReviewMedia = Prisma.ReviewMediaModel
+/**
  * Model PaymentTransaction
  * 
  */
