@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
+import { SkipThrottle } from '@nestjs/throttler'
 import { ZodSerializerDto } from 'nestjs-zod'
 import {
   CreateProductBodyDTO,
@@ -12,6 +13,7 @@ import {
 import { ProductService } from 'src/routes/product/product.service'
 import { IsPublic } from 'src/shared/decorators/auth.decorator'
 
+@SkipThrottle()
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
