@@ -93,7 +93,6 @@ export class AuthService {
         this.authRepository.deleteVerificationCode({
           email_type: {
             email: body.email,
-            // code: body.code,
             type: TypeOfVerificationCode.REGISTER,
           },
         }),
@@ -311,7 +310,6 @@ export class AuthService {
       this.authRepository.deleteVerificationCode({
         email_type: {
           email: body.email,
-          // code: body.code,
           type: TypeOfVerificationCode.FORGOT_PASSWORD,
         },
       }),
